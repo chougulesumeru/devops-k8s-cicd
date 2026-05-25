@@ -1,0 +1,5 @@
+# configure namespace.yml file
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: myapp
