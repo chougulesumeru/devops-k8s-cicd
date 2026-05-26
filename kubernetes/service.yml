@@ -1,0 +1,29 @@
+# internal service for postgreSQL: only reachable within the cluster.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-svc
+  namespace: devops-k8s-cicd
+spec:
+  selector:
+    app: devops-k8s-cicd
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+---
+# external service for flask:- accessible from your browser via Minikube or anyother
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-svc
+  namespace: devops-k8s-cicd
+spce:
+  selector:
+    app: devops-k8s-cicd
+  ports:
+    - port: 80
+      targetPort: 5000
+  type: NodePort
