@@ -11,7 +11,7 @@ spec:
       app: devops-k8s-cicd
   template:
     metadata:
-      lables:
+      labels:
         app: devops-k8s-cicd
     spec:
       containers:
@@ -23,15 +23,15 @@ spec:
             - name: DB_HOST
               value: "postgres-svc" # kubernetes service DNS name
             - name: DB_NAME
-              valuesFrom:
+              valueFrom:
                 secretKeyRef:
                   name: db-secret
                   key: DB_NAME
             - name: DB_USER
-              valuesFrom:
+              valueFrom:
                 secretKeyRef:
                   name: db-secret
-                  key: DB_PASSWORD
+                  key: DB_USER
 
           # reliability feature: probes
           readinessProbe:
@@ -40,7 +40,7 @@ spec:
               port: 5000
             initialDelaySeconds: 10 # give app more time to start
             periodSeconds: 5 # check every 10 seconds
-            failureThresholds: 3 # 3 failures = restart pod
+            failureThreshold: 3 # 3 failures = restart pod
 
           livenessProbe:
             httpGet:
@@ -48,7 +48,7 @@ spec:
               port: 5000
             initialDelaySeconds: 20 # give app more time to start
             periodSeconds: 10 # check every 10 seconds
-            failureThresholds: 3 # 3 failure= restart pod
+            failureThreshold: 3 # 3 failure= restart pod
 
           resources:
             requests:

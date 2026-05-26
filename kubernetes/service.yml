@@ -20,7 +20,7 @@ kind: Service
 metadata:
   name: flask-svc
   namespace: devops-k8s-cicd
-spce:
+spec:
   selector:
     app: devops-k8s-cicd
   ports:
