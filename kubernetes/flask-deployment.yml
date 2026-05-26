@@ -1,0 +1,59 @@
+# This is the heart of the config- includes our reliability probes and resource limits.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+  namespace: devops-k8s-cicd
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devops-k8s-cicd
+  template:
+    metadata:
+      lables:
+        app: devops-k8s-cicd
+    spec:
+      containers:
+        - name: flask-api
+          image: sumeruc/devops-k8s-cicd:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DB_HOST
+              value: "postgres-svc" # kubernetes service DNS name
+            - name: DB_NAME
+              valuesFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: DB_NAME
+            - name: DB_USER
+              valuesFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: DB_PASSWORD
+
+          # reliability feature: probes
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5000
+            initialDelaySeconds: 10 # give app more time to start
+            periodSeconds: 5 # check every 10 seconds
+            failureThresholds: 3 # 3 failures = restart pod
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 20 # give app more time to start
+            periodSeconds: 10 # check every 10 seconds
+            failureThresholds: 3 # 3 failure= restart pod
+
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
