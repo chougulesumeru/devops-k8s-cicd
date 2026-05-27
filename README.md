@@ -14,7 +14,7 @@ Built as part of a DevOps Infrastructure Challenge — focusing on containerizat
 | Database | PostgreSQL 15 |
 | Container | Docker |
 | Orchestration | Kubernetes (Minikube) |
-| CI/CD | GitHub Actions |
+| CI/CD | Jenkins |
 | Registry | DockerHub |
 
 ---
@@ -33,9 +33,8 @@ devops-k8s-cicd/
 │   ├── postgres-deployment.yaml
 │   ├── flask-deployment.yaml   # Includes readiness/liveness probes
 │   └── services.yaml
-└── .github/
-    └── workflows/
-        └── deploy.yml          # CI/CD pipeline
+└── Jenkins/
+    └── Jenkinsfile          # CI/CD pipeline
 ```
 
 ---
@@ -47,7 +46,7 @@ devops-k8s-cicd/
 - Credentials managed via Kubernetes Secrets (never hardcoded)
 - Resource requests and limits set on all containers
 
-### CI/CD Pipeline (GitHub Actions)
+### CI/CD Pipeline (Jenkins)
 - Triggers on every push to `main`
 - Builds Docker image and pushes to DockerHub (tagged with Git SHA)
 - Applies Kubernetes manifests and verifies rollout status
