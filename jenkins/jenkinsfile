@@ -1,0 +1,70 @@
+// jenkins runs asa container itself, watches your githubb repo 
+//builds docker image and deplot to kubernetes 
+
+pipeline{
+    agent any 
+
+    environment {
+        IMAGE_NAME= "sumeric/devops-k8s-cicd"
+        IMAGE_TAG= "${env.BUILD_NUMBER}"
+    }
+
+    stages{
+        stage('Checkout'){
+            steps {
+                checkout scm 
+            }
+        }
+
+        stage('build docker image'){
+            steps{
+                sh """
+                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ./app
+                docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                """
+
+            }
+        }
+
+        stage('Push to the dockerhub'){
+            steps{
+                //dockerhub-creds is a jenkins credential
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockrhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]){
+                    sh """
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    docker push ${IMAGE_NAME}:latest
+                    """
+                }
+            }
+        }
+
+        stage('Deploy to kubernetes'){
+            steps{
+                //kubeconfig is a jenkins secret file credetnial
+                withCredentials([file(credentialsId:'kubeconfig', variable: 'KUBECONFIG')]){
+                    sh """
+                    export KUBECONFIG=$KUBECONFIG
+
+                    kubectl apply -f kubernetes/
+                    kubectl rollout status deployment/flask-deployment -n devops-k8s-cicd
+                    kubectl rollout status deployment/postgres-deployment -n devops-k8s-cicd
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment successful- build # ${env.BUILD_NUMBER}"
+        }
+        failure {
+            echo "Pipeline failed- checked logs above"
+        }
+    }
+}
