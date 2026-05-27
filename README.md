@@ -1,6 +1,6 @@
 # devops-k8s-cicd
 
-A production-style application stack built with **Flask + PostgreSQL**, deployed on **Kubernetes (Minikube)**, with a fully automated **GitHub Actions CI/CD pipeline**.
+A production-style application stack built with **Flask + PostgreSQL**, deployed on **Kubernetes (Minikube)**, with a fully automated **Jenkins CI/CD pipeline**.
 
 Built as part of a DevOps Infrastructure Challenge — focusing on containerization, deployment automation, observability, and operational debugging.
 
